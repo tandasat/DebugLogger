@@ -114,4 +114,4 @@ Supported Platforms
   - You will need additional Visual Studio components to compile device drivers
     for ARM64 processors. See [Building ARM64 Drivers with the WDK](
     https://docs.microsoft.com/en-us/windows-hardware/drivers/develop/building-arm64-drivers) for more information.
-- 64bit versions of Windows 10 on ARM64 or x64
+- Windows 10 on ARM64 or x64

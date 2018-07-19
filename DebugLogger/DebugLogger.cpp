@@ -11,14 +11,14 @@
 #include <ntstrsafe.h>
 
 //
-// Define SYNCH_LEVEL for readability. SYNCH_LEVEL is 12 on both ARM64 and x64.
+// Defines SYNCH_LEVEL for readability. SYNCH_LEVEL is 12 on both ARM64 and x64.
 //
 #ifndef SYNCH_LEVEL
 #define SYNCH_LEVEL 12
 #endif
 
 //
-// Handy macro to specify at which segment the code should be placed.
+// Handy macros to specify at which segment the code should be placed.
 //
 #define DEBUGLOGGER_INIT  __declspec(code_seg("INIT"))
 #define DEBUGLOGGER_PAGED __declspec(code_seg("PAGE"))
@@ -45,8 +45,7 @@ static const ULONG k_PoolTag = 'LgbD';
 static const ULONG k_MaxDbgPrintLogLength = 512;
 
 //
-// The format of how each debug log messages are store in buffer. The buffer is
-// contains the sequence of this structure.
+// The format of a single debug log message stored in DEBUG_LOG_BUFFER::LogEntries.
 //
 #include <pshpack1.h>
 typedef struct _DEBUG_LOG_ENTRY
@@ -62,7 +61,7 @@ typedef struct _DEBUG_LOG_ENTRY
     USHORT LogLineLength;
 
     //
-    // The debug log message, not including terminating null or '\n' or '\n'.
+    // The debug log message, not including terminating null, '\r' or '\n'.
     //
     CHAR LogLine[ANYSIZE_ARRAY];
 } DEBUG_LOG_ENTRY, *PDEBUG_LOG_ENTRY;
@@ -70,7 +69,7 @@ static_assert(sizeof(DEBUG_LOG_ENTRY) == 11, "Must be packed for space");
 #include <poppack.h>
 
 //
-// Active and inactive buffer object.
+// The active and inactive buffer layout.
 //
 typedef struct _DEBUG_LOG_BUFFER
 {
@@ -80,8 +79,8 @@ typedef struct _DEBUG_LOG_BUFFER
     PDEBUG_LOG_ENTRY LogEntries;
 
     //
-    // The offset to the address where the next DEBUG_LOG_ENTRY should be saved
-    // from LogEntries.
+    // The offset to the address where the next DEBUG_LOG_ENTRY should be saved,
+    // counted from LogEntries.
     //
     ULONG NextLogOffset;
 
@@ -108,9 +107,8 @@ typedef struct _PAIRED_DEBUG_LOG_BUFFER
 
     //
     // The pointers to two buffers: active and inactive. Active buffer is used
-    // by the debug print callback and actively save new messages as they show
-    // up. Inactive buffer is buffer being accessed and cleared up by the flush
-    // buffer thread.
+    // by the debug print callback and to save new messages as they comes in.
+    // Inactive buffer is buffer accessed and cleared up by the flush buffer thread.
     //
     PDEBUG_LOG_BUFFER ActiveLogBuffer;
     PDEBUG_LOG_BUFFER InactiveLogBuffer;
@@ -664,7 +662,7 @@ FlushDebugLogEntries (
     }
 
     //
-    // Update maximum overflow size as necessary.
+    // Update the maximum overflow size as necessary.
     //
     ThreadContext->MaxOverflowedLogSize = max(ThreadContext->MaxOverflowedLogSize,
                                               oldLogBuffer->OverflowedLogSize);
@@ -733,6 +731,7 @@ FlushBufferThreadEntryPoint (
 */
 DEBUGLOGGER_INIT
 static
+_IRQL_requires_max_(PASSIVE_LEVEL)
 VOID
 EnableVerboseDebugOutput (
     VOID
@@ -784,8 +783,9 @@ EnableVerboseDebugOutput (
     @return STATUS_SUCCESS or an appropriate status code.
 */
 DEBUGLOGGER_INIT
-_IRQL_requires_max_(PASSIVE_LEVEL)
 static
+_IRQL_requires_max_(PASSIVE_LEVEL)
+_Check_return_
 NTSTATUS
 StartDebugPrintCallback (
     _Out_ PDEBUG_LOG_BUFFER LogBufferActive,
@@ -888,6 +888,7 @@ Exit:
 DEBUGLOGGER_INIT
 static
 _IRQL_requires_max_(PASSIVE_LEVEL)
+_Check_return_
 NTSTATUS
 StartFlushBufferThread (
     _Out_ PFLUSH_BUFFER_THREAD_CONTEXT ThreadContext
@@ -985,6 +986,7 @@ Exit:
 DEBUGLOGGER_INIT
 static
 _IRQL_requires_max_(PASSIVE_LEVEL)
+_Check_return_
 NTSTATUS
 StartDebugPrintLogging (
     VOID
