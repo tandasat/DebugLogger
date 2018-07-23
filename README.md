@@ -62,7 +62,7 @@ DebugLogger and DebugView.
 Usage
 ------
 
-To the pre-compiled file **for ARM64**, goto
+For the pre-compiled file **for ARM64**, goto
 [Releases](https://github.com/tandasat/DebugLogger/releases) and download the
 latest release.
 

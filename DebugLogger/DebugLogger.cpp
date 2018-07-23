@@ -166,7 +166,7 @@ _IRQL_requires_(SYNCH_LEVEL)
 VOID
 SaveDebugOutputLine (
     _In_ const LARGE_INTEGER* Timestamp,
-    _In_ PCCHAR LogLine,
+    _In_ PCSTR LogLine,
     _Inout_ PPAIRED_DEBUG_LOG_BUFFER PairedLogBuffer
     )
 {
@@ -271,8 +271,8 @@ SaveDebugOutput (
     )
 {
     CHAR ouputBuffer[k_MaxDbgPrintLogLength + 1];
-    PCHAR strtokContext;
-    PCHAR logLine;
+    PSTR strtokContext;
+    PSTR logLine;
     LARGE_INTEGER timestamp;
 
     //
@@ -592,7 +592,7 @@ FlushDebugLogEntries (
                                                     offset));
 
         //
-        // Build a temporal ANSI_STRING for stringify non-null terminated string.
+        // Build a temporal ANSI_STRING to stringify non-null terminated string.
         //
         tmpLogLine.Buffer = logEntry->LogLine;
         tmpLogLine.Length = logEntry->LogLineLength;

@@ -20,7 +20,7 @@ DriverEntry (
     //
     // Test log messages and expected output.
     //
-    const PCHAR testLogLines[] =
+    PCSTR testLogLines[] =
     {
         "123",          // -> "123"
         "123\n",        // -> "123"
